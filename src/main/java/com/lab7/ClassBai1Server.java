@@ -4,8 +4,10 @@
  */
 package com.lab7;
 
+import java.io.BufferedReader;
 import java.io.DataInputStream;
 import java.io.DataOutputStream;
+import java.io.InputStreamReader;
 import java.net.ServerSocket;
 import java.net.Socket;
 
@@ -17,24 +19,24 @@ public class ClassBai1Server {
 
     public static void main(String[] args) {
         try {
-            ServerSocket serverSocket = new ServerSocket(8888);
+            ServerSocket welcomeSocket = new ServerSocket(8888);
             System.out.println("Server is connecting....");
-            Socket socket = serverSocket.accept();
+            Socket connectionSocket = welcomeSocket.accept();
             System.out.println("Server is connected");
-            DataInputStream inputStream = new DataInputStream(socket.getInputStream());
-            DataOutputStream outputStream = new DataOutputStream(socket.getOutputStream());
+            DataInputStream inFromClient = new DataInputStream(connectionSocket.getInputStream());
+            DataOutputStream outToClient = new DataOutputStream(connectionSocket.getOutputStream());
             while (true) {
-                double number1 = inputStream.readDouble();
-                double number2 = inputStream.readDouble();
-                System.out.println("2 Số nhận được từ Client là " + number1
-                        + +number2);
+                double number1 = inFromClient.readDouble();
+                double number2 = inFromClient.readDouble();
+                System.out.println("So thu nhat: "+number1);
+                System.out.println("So thu hai: "+number2);
                 double sum = number1 + number2;
-                outputStream.writeDouble(sum);
-                outputStream.flush();
+                outToClient.writeDouble(sum);
+                outToClient.flush();
                 System.out.println("Tong 2 so la: " + sum);
             }
         } catch (Exception ex) {
-            ex.printStackTrace();
+            
         }
     }
 }

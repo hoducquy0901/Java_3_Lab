@@ -16,6 +16,7 @@ import java.util.Scanner;
 public class ClassBai1Client {
 
     public static void main(String[] args) {
+        Scanner sc = new Scanner(System.in);
         try {
             System.out.println("Client is Connecting....");
             Socket socket = new Socket("localhost", 8888);
@@ -24,14 +25,15 @@ public class ClassBai1Client {
             DataInputStream inputStream = new DataInputStream(socket.getInputStream());
             while (true) {
                 System.out.print("Nhap vao so thu 1: ");
-                outputStream.writeDouble(new Scanner(System.in).nextDouble());
+                outputStream.writeDouble(sc.nextDouble());
                 outputStream.flush();
                 System.out.print("Nhap vao so thu 2: ");
-                outputStream.writeDouble(new Scanner(System.in).nextDouble());
+                outputStream.writeDouble(sc.nextDouble());
                 outputStream.flush();
-                System.out.println("Tong 2 so: " + inputStream.readDouble());
+                double sum  = inputStream.readDouble();
+                System.out.println("Tong 2 so: " + sum);
                 System.out.print("Tiep tuc?(y/n): ");
-                String traloi = new Scanner(System.in).nextLine();
+                String traloi = sc.next();
                 if (traloi.equals("n") || traloi.equals("N")) {
                     break;
                 }
