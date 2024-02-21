@@ -17,8 +17,10 @@ import lombok.Setter;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class User {
-    private String username;
-    private String password;
-    private String role;
+public class Grade {
+    private int id;
+    private String MaSV;
+    private int TiengAnh;
+    private int TinHoc;
+    private int GDTC;
 }

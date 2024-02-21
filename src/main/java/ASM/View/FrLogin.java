@@ -4,17 +4,38 @@
  */
 package ASM.View;
 
+import ASM.DAO.UserDAO;
+import ASM.Model.User;
+import java.text.DecimalFormat;
+import java.text.SimpleDateFormat;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author acer
  */
 public class FrLogin extends javax.swing.JFrame {
-
+    UserDAO dao = new UserDAO();
     /**
      * Creates new form FrLogin
      */
     public FrLogin() {
         initComponents();
+    }
+    
+    public int login(String user, String pass) {
+        SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+        DecimalFormat f = new DecimalFormat("#,##0.##");
+        List<User> list = dao.Select();
+        for (User x : list) {
+            if(x.getUsername().equals(user) && x.getPassword().equals(pass)){
+                return 0;
+            }
+            break;
+        }
+        return -1;
     }
 
     /**
@@ -42,11 +63,30 @@ public class FrLogin extends javax.swing.JFrame {
 
         jLabel2.setText("Username:");
 
+        txtUsername.setText("ducquy");
+        txtUsername.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtUsernameActionPerformed(evt);
+            }
+        });
+
+        txtPassword.setText("123456");
+
         jLabel3.setText("Password:");
 
         btnLogin.setText("Login");
+        btnLogin.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnLoginActionPerformed(evt);
+            }
+        });
 
         btnCancel.setText("Cancel");
+        btnCancel.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnCancelActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -97,6 +137,34 @@ public class FrLogin extends javax.swing.JFrame {
 
         pack();
     }// </editor-fold>//GEN-END:initComponents
+
+    private void btnLoginActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnLoginActionPerformed
+        // TODO add your handling code here:
+        String user = txtUsername.getText();
+        String pass = txtPassword.getText();
+        switch (login(user,pass)) {
+            case -2 -> {
+                JOptionPane.showMessageDialog(this, "Lỗi Kết Nối, Vui Lòng Thử Lại");
+            }
+            case -1 -> {
+                JOptionPane.showMessageDialog(this, "Tai Khoản Không Tồn Tại Hoặc Sai Tài Khoản Hoặc Mật Khẩu");
+            }
+            
+            default -> {
+                new FrQuanLySV().setVisible(true);
+                this.dispose();
+            }
+        }
+    }//GEN-LAST:event_btnLoginActionPerformed
+
+    private void btnCancelActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnCancelActionPerformed
+        // TODO add your handling code here:
+        this.dispose();
+    }//GEN-LAST:event_btnCancelActionPerformed
+
+    private void txtUsernameActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtUsernameActionPerformed
+        // TODO add your handling code here:
+    }//GEN-LAST:event_txtUsernameActionPerformed
 
     /**
      * @param args the command line arguments

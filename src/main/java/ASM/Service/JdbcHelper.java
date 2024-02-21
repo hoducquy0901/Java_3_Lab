@@ -27,6 +27,14 @@ public class JdbcHelper {
         }
     }
 // xây dựng prepareStatement
+    
+    public static Connection openDbConnection() {
+        try {
+            return DriverManager.getConnection(dburl, username, password);
+        } catch (SQLException ex) {
+            throw new RuntimeException(ex);
+        }
+    }
 
     public static PreparedStatement prepareStatement(String sql, Object... args) throws SQLException {
         Connection connection = DriverManager.getConnection(dburl, username, password);

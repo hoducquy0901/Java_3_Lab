@@ -4,19 +4,154 @@
  */
 package ASM.View;
 
+import ASM.DAO.StudentDAO;
+import ASM.Model.Student;
+import ASM.Service.MsgBox;
+import java.text.SimpleDateFormat;
+import java.util.List;
+import javax.swing.JOptionPane;
+import javax.swing.table.DefaultTableModel;
+
 /**
  *
  * @author acer
  */
 public class FrQuanLySV extends javax.swing.JFrame {
 
+    StudentDAO dao = new StudentDAO();
+    private DefaultTableModel defaultTableModelKH = new DefaultTableModel();
+
     /**
      * Creates new form FrUser
      */
     public FrQuanLySV() {
         initComponents();
+        loadTB();
+        setLocationRelativeTo(null);
+    }
+    
+    int index =0;
+    public void loadTB() {
+        SimpleDateFormat df = new SimpleDateFormat("dd-MM-yyyy");
+        List<Student> list = dao.Select();
+        defaultTableModelKH.setRowCount(0);
+        defaultTableModelKH = (DefaultTableModel) tbSinhVien.getModel();
+        for (Student x : list) {
+            String gioitinh = null;
+            if (x.getGioiTinh()) {
+                gioitinh = "Nam";
+            } else {
+                gioitinh = "Nữ";
+            }
+            defaultTableModelKH.addRow(new Object[]{
+                x.getMaSV(), x.getHoTen(), x.getEmail(), x.getSoDT(), gioitinh, x.getDiaChi(), x.getHinh()
+            });
+        }
+    }
+    
+    private void edit() {
+        try {
+            String MaSV = (String) tbSinhVien.getValueAt(this.index, 0);
+            Student model = dao.findByMaSV(MaSV);
+            if (model != null) {
+                this.setModel(model);
+
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Lỗi", "Error", 1);
+            e.printStackTrace();
+        }
+    }
+    
+    private void setModel(Student model) {
+        txtMaSV.setText(model.getMaSV());
+        txtHoTen.setText(model.getHoTen());
+        txtEmail.setText(model.getEmail());
+        txtSoDT.setText(model.getSoDT());
+        if (model.getGioiTinh() == true) {
+            rdbtnNam.setSelected(true);
+        } else {
+            rdbtnNu.setSelected(true);
+        }
+        txtDiaChi.setText(model.getDiaChi());
+
     }
 
+    private Student getModel() {
+        Student model = new Student();
+        model.setMaSV(txtMaSV.getText());
+        model.setHoTen(txtHoTen.getText());
+        model.setEmail(txtEmail.getText());
+        model.setSoDT(txtSoDT.getText());
+        if (rdbtnNam.isSelected()) {
+            model.setGioiTinh(true);
+        } else {
+            model.setGioiTinh(false);
+        }
+        model.setDiaChi(txtDiaChi.getText());
+        return model;
+
+    }
+
+    private void ResetForm() {
+        txtMaSV.setText("");
+        txtHoTen.setText("");
+        txtEmail.setText("");
+        txtSoDT.setText("");
+        buttonGroup1.clearSelection();
+        txtDiaChi.setText("");
+    }
+
+    public boolean checkSV() {
+        String reg = "^(0|\\+84)(\\s|\\.)?((3[2-9])|(5[689])|(7[06-9])|(8[1-689])|(9[0-46-9]))(\\d)(\\s|\\.)?(\\d{3})(\\s|\\.)?(\\d{3})$";
+        if (txtMaSV.getText().equals("") || txtHoTen.getText().equals("") || txtSoDT.getText().equals("")) {
+            JOptionPane.showMessageDialog(this, "Hãy nhập đủ dữ liệu", "Error", 1);
+            return false;
+        } else if (dao.ktrMaSV(txtMaSV.getText())) {
+            JOptionPane.showMessageDialog(this, "Trùng Mã Khách Hàng", "Error", 1);
+            txtMaSV.requestFocus();
+            return false;
+        }
+        return true;
+    }
+    private void insert() {
+        Student model = getModel();
+        try {
+            dao.insert(model);
+            loadTB();
+            MsgBox.alert(this, "Thêm mới thành công!");
+        } catch (Exception e) {
+            MsgBox.alert(this, "Thêm mới thất bại!");
+        }
+    }
+
+    private void update() {
+        Student model = getModel();
+        String MaSV = txtMaSV.getText();
+        model.setMaSV(MaSV);
+        try {
+            dao.update(model);
+            loadTB();
+            MsgBox.alert(this, "Sửa lại thành công!");
+        } catch (Exception e) {
+            MsgBox.alert(this, "Sửa lại thất bại!");
+        }
+    }
+
+    private void delete() {
+        if (MsgBox.confirm(this, "Bạn có muốn xóa hay không?")) {
+            String MaSV = txtMaSV.getText();
+            try {
+                dao.delete(MaSV);
+                loadTB();
+                ResetForm();
+                MsgBox.alert(this, "Xóa thành công!");
+            } catch (Exception e) {
+                MsgBox.alert(this, "Xóa thất bại!");
+            }
+        }
+    }
+    
     /**
      * This method is called from within the constructor to initialize the form.
      * WARNING: Do NOT modify this code. The content of this method is always
@@ -28,7 +163,7 @@ public class FrQuanLySV extends javax.swing.JFrame {
 
         buttonGroup1 = new javax.swing.ButtonGroup();
         jScrollPane1 = new javax.swing.JScrollPane();
-        jTable1 = new javax.swing.JTable();
+        tbSinhVien = new javax.swing.JTable();
         jLabel1 = new javax.swing.JLabel();
         jLabel2 = new javax.swing.JLabel();
         txtMaSV = new javax.swing.JTextField();
@@ -53,7 +188,7 @@ public class FrQuanLySV extends javax.swing.JFrame {
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
 
-        jTable1.setModel(new javax.swing.table.DefaultTableModel(
+        tbSinhVien.setModel(new javax.swing.table.DefaultTableModel(
             new Object [][] {
                 {null, null, null, null, null, null, null},
                 {null, null, null, null, null, null, null},
@@ -72,7 +207,12 @@ public class FrQuanLySV extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        jScrollPane1.setViewportView(jTable1);
+        tbSinhVien.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mousePressed(java.awt.event.MouseEvent evt) {
+                tbSinhVienMousePressed(evt);
+            }
+        });
+        jScrollPane1.setViewportView(tbSinhVien);
 
         jLabel1.setFont(new java.awt.Font("Segoe UI", 1, 18)); // NOI18N
         jLabel1.setHorizontalAlignment(javax.swing.SwingConstants.CENTER);
@@ -258,19 +398,54 @@ public class FrQuanLySV extends javax.swing.JFrame {
 
     private void btnThemActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnThemActionPerformed
         // TODO add your handling code here:
+        try {
+
+            if (checkSV()) {
+                this.insert();
+            }
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Lỗi, Vui lòng xem lại");
+            e.printStackTrace();
+        }
     }//GEN-LAST:event_btnThemActionPerformed
 
     private void btnSuaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSuaActionPerformed
         // TODO add your handling code here:
+        try {
+
+            this.update();
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Lỗi, Vui lòng xem lại");
+            e.printStackTrace();
+        }
     }//GEN-LAST:event_btnSuaActionPerformed
 
     private void btnXoaActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnXoaActionPerformed
         // TODO add your handling code here:
+        try {
+
+            this.delete();
+
+        } catch (Exception e) {
+            JOptionPane.showMessageDialog(this, "Lỗi, Vui lòng xem lại");
+            e.printStackTrace();
+        }
     }//GEN-LAST:event_btnXoaActionPerformed
 
     private void btnResetActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnResetActionPerformed
         // TODO add your handling code here:
+        ResetForm();
+        loadTB();
     }//GEN-LAST:event_btnResetActionPerformed
+
+    private void tbSinhVienMousePressed(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tbSinhVienMousePressed
+        // TODO add your handling code here:
+        this.index = tbSinhVien.rowAtPoint(evt.getPoint());
+        if (this.index >= 0) {
+            this.edit();
+        }
+    }//GEN-LAST:event_tbSinhVienMousePressed
 
     /**
      * @param args the command line arguments
@@ -324,10 +499,10 @@ public class FrQuanLySV extends javax.swing.JFrame {
     private javax.swing.JPanel jPanel1;
     private javax.swing.JScrollPane jScrollPane1;
     private javax.swing.JScrollPane jScrollPane2;
-    private javax.swing.JTable jTable1;
     private javax.swing.JPanel pnlHinh;
     private javax.swing.JRadioButton rdbtnNam;
     private javax.swing.JRadioButton rdbtnNu;
+    private javax.swing.JTable tbSinhVien;
     private javax.swing.JTextArea txtDiaChi;
     private javax.swing.JTextField txtEmail;
     private javax.swing.JTextField txtHoTen;
